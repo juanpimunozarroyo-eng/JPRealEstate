@@ -10,6 +10,10 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<style>
+		/* render stars in reviews */
+		.review .stars { color: #ffcc00; margin-left: 0.5em; font-size: 1.1em; }
+		</style>
 	</head>
 	<body class="is-preload">
 
@@ -37,7 +41,7 @@
 						<header class="major">
 							<h2>Notary Signing Agent Services for Escrow Officcers and Estate Planning Attorneys.Real Estate Professional.</h2>
 						</header>
-						<p>Accumsan orci faucibus id eu lorem semper. Eu ac iaculis ac nunc nisi lorem vulputate lorem neque cubilia ac in adipiscing in curae lobortis tortor primis integer massa adipiscing id nisi[...]</p>
+						<p>Accumsan orci faucibus id eu lorem semper. Eu ac iaculis ac nunc nisi lorem vulputate lorem neque cubilia ac in adipiscing in curae lobortis tortor primis integer massa adipiscing id nisi[...[...]
 						<ul class="actions">
 							<li><a href="#" class="button">Learn More</a></li>
 						</ul>
@@ -124,7 +128,6 @@
 				<!-- Reviews section: loaded from localStorage -->
 					<section id="reviews" style="padding:2em; background:#f8f8f8;">
 						<h2>Reviews</h2>
-						<p id="reviews-intro">Below are reviews submitted via the Reviews page.</p>
 						<div id="reviews-list">
 							<!-- Reviews will be injected here -->
 						</div>
@@ -158,6 +161,14 @@
 
 			<script>
 			// Reviews loader: reads reviews from localStorage key 'jp_reviews' and renders them
+			function renderStars(n) {
+				var out = '';
+				var filled = Math.max(0, Math.min(5, parseInt(n) || 0));
+				for (var i = 0; i < filled; i++) out += '\u2605'; // filled star ★
+				for (var i = filled; i < 5; i++) out += '\u2606'; // empty star ☆
+				return out;
+			}
+
 			function loadReviews() {
 				try {
 					const raw = localStorage.getItem('jp_reviews');
@@ -179,7 +190,14 @@
 						div.style.padding = '1em';
 						div.style.marginBottom = '1em';
 						const header = document.createElement('strong');
-						header.textContent = r.name + (r.rating ? ' — ' + r.rating + '/5' : '');
+						header.textContent = r.name || 'Anonymous';
+						// stars
+						if (r.rating) {
+							const span = document.createElement('span');
+							span.className = 'stars';
+							span.textContent = ' ' + renderStars(r.rating);
+							header.appendChild(span);
+						}
 						const p = document.createElement('p');
 						p.textContent = r.message;
 						div.appendChild(header);

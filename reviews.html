@@ -39,8 +39,7 @@
           <label for="r-name">Name *</label>
           <input id="r-name" name="name" type="text" required />
 
-          <label for="r-email">Email (optional)</label>
-          <input id="r-email" name="email" type="email" />
+          <!-- removed email input as requested -->
 
           <label for="r-rating">Rating</label>
           <select id="r-rating" name="rating">
@@ -101,7 +100,6 @@
       document.getElementById('reviewForm').addEventListener('submit', function (ev) {
         ev.preventDefault();
         const name = trimOrEmpty(document.getElementById('r-name').value);
-        const email = trimOrEmpty(document.getElementById('r-email').value);
         const rating = trimOrEmpty(document.getElementById('r-rating').value);
         const message = trimOrEmpty(document.getElementById('r-message').value);
 
@@ -112,7 +110,6 @@
 
         const review = {
           name: name,
-          email: email || '',
           rating: rating || '',
           message: message,
           ts: new Date().toISOString()
