@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Leave a Review — JP</title>
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+      /* small page-specific tweaks */
+      .review-form { max-width: 720px; margin: 1.5em auto; padding: 1em; }
+      .review-form label { display:block; margin:0.5em 0 0.25em; }
+      .review-form input[type="text"],
+      .review-form input[type="email"],
+      .review-form textarea,
+      .review-form select { width:100%; padding:0.6em; border:1px solid #ccc; border-radius:3px; }
+      .review-form .actions { margin-top:1em; }
+      .success { background:#e6ffea; border:1px solid #b8f0c6; padding:0.8em; margin-top:1em; }
+    </style>
+  </head>
+  <body>
+    <header id="header">
+      <div class="inner">
+        <a href="index.html" class="image avatar"><img src="images/avatar.jpg" alt="" /></a>
+        <h1><strong>Juan Pablo Munoz Arroyo</strong></h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="reviews.html" class="active">Reviews</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div id="main">
+      <section id="leave-review" class="review-form">
+        <header class="major"><h2>Leave a Review</h2></header>
+
+        <form id="reviewForm">
+          <label for="r-name">Name *</label>
+          <input id="r-name" name="name" type="text" required />
+
+          <label for="r-email">Email (optional)</label>
+          <input id="r-email" name="email" type="email" />
+
+          <label for="r-rating">Rating</label>
+          <select id="r-rating" name="rating">
+            <option value="">— select —</option>
+            <option value="5">5 — Excellent</option>
+            <option value="4">4 — Very good</option>
+            <option value="3">3 — Good</option>
+            <option value="2">2 — Fair</option>
+            <option value="1">1 — Poor</option>
+          </select>
+
+          <label for="r-message">Message *</label>
+          <textarea id="r-message" name="message" rows="6" required></textarea>
+
+          <ul class="actions">
+            <li><input type="submit" value="Submit Review" class="button primary" /></li>
+            <li><input type="reset" value="Reset" /></li>
+          </ul>
+        </form>
+
+        <div id="result" aria-live="polite"></div>
+        <p><a href="index.html" class="button">Back to Home</a></p>
+      </section>
+    </div>
+
+    <footer id="footer">
+      <div class="inner">
+        <ul class="copyright">
+          <li>&copy; Untitled</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    <script>
+      // simple helper to read/write reviews array
+      function readReviews() {
+        try {
+          const raw = localStorage.getItem('jp_reviews');
+          if (!raw) return [];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+          console.error('readReviews parse error', e);
+          return [];
+        }
+      }
+      function writeReviews(arr) {
+        try {
+          localStorage.setItem('jp_reviews', JSON.stringify(arr));
+        } catch (e) {
+          console.error('writeReviews error', e);
+        }
+      }
+
+      // sanitize plain text for appearance when re-rendered (we use textContent on index)
+      function trimOrEmpty(s) { return (s || '').trim(); }
+
+      document.getElementById('reviewForm').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        const name = trimOrEmpty(document.getElementById('r-name').value);
+        const email = trimOrEmpty(document.getElementById('r-email').value);
+        const rating = trimOrEmpty(document.getElementById('r-rating').value);
+        const message = trimOrEmpty(document.getElementById('r-message').value);
+
+        if (!name || !message) {
+          document.getElementById('result').innerHTML = '<div class="success">Please provide your name and a message.</div>';
+          return;
+        }
+
+        const review = {
+          name: name,
+          email: email || '',
+          rating: rating || '',
+          message: message,
+          ts: new Date().toISOString()
+        };
+
+        const reviews = readReviews();
+        reviews.unshift(review); // newest first
+        writeReviews(reviews);
+
+        // show success and offer link back
+        const result = document.getElementById('result');
+        result.innerHTML = '<div class="success">Thank you — your review has been saved locally. <a href="index.html">Return to home to see it</a>.</div>';
+
+        // optional: clear form
+        this.reset();
+
+        // optional: redirect after short pause
+        // setTimeout(() => location.href = 'index.html', 1200);
+      });
+    </script>
+  </body>
+</html>
