@@ -13,6 +13,10 @@
 		<style>
 		/* render stars in reviews */
 		.review .stars { color: #ffcc00; margin-left: 0.5em; font-size: 1.1em; }
+		/* employer reviews styling */
+		.employer-reviews-container { max-width: 100%; margin: 0 auto; }
+		.employer-review-item { margin-bottom: 2em; }
+		.employer-review-item img { width: 100%; max-width: 800px; border: 1px solid #ddd; border-radius: 5px; }
 		</style>
 	</head>
 	<body class="is-preload">
@@ -50,13 +54,13 @@
 				<!-- Two -->
 					<section id="two">
 						<h2>Employer Reviews</h2>
-						<div class="row">
-							<article class="col-6 col-12-xsmall work-item">
-								<img src="images/review-1.png" alt="Review by Stephanie Espinal" style="width:100%; border:1px solid #ddd; border-radius:5px;" />
-							</article>
-							<article class="col-6 col-12-xsmall work-item">
-								<img src="images/review-2.png" alt="Review by Krysten S." style="width:100%; border:1px solid #ddd; border-radius:5px;" />
-							</article>
+						<div class="employer-reviews-container">
+							<div class="employer-review-item">
+								<img src="images/review-1.png" alt="Review by Stephanie Espinal" />
+							</div>
+							<div class="employer-review-item">
+								<img src="images/review-2.png" alt="Review by Krysten S." />
+							</div>
 						</div>
 						<ul class="actions">
 							<li><a href="reviews.html" class="button">Leave a Review</a></li>
