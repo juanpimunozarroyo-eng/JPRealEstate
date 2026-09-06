@@ -15,6 +15,8 @@
       .review-form select { width:100%; padding:0.6em; border:1px solid #ccc; border-radius:3px; }
       .review-form .actions { margin-top:1em; }
       .success { background:#e6ffea; border:1px solid #b8f0c6; padding:0.8em; margin-top:1em; }
+      .error { background:#ffe6e6; border:1px solid #f0b8b8; padding:0.8em; margin-top:1em; }
+      .loading { color:#666; font-style:italic; }
     </style>
   </head>
   <body>
@@ -38,8 +40,6 @@
         <form id="reviewForm">
           <label for="r-name">Name *</label>
           <input id="r-name" name="name" type="text" required />
-
-          <!-- removed email input as requested -->
 
           <label for="r-rating">Rating</label>
           <select id="r-rating" name="rating">
@@ -73,40 +73,51 @@
       </div>
     </footer>
 
-    <script>
-      // simple helper to read/write reviews array
-      function readReviews() {
-        try {
-          const raw = localStorage.getItem('jp_reviews');
-          if (!raw) return [];
-          const arr = JSON.parse(raw);
-          return Array.isArray(arr) ? arr : [];
-        } catch (e) {
-          console.error('readReviews parse error', e);
-          return [];
-        }
-      }
-      function writeReviews(arr) {
-        try {
-          localStorage.setItem('jp_reviews', JSON.stringify(arr));
-        } catch (e) {
-          console.error('writeReviews error', e);
-        }
-      }
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 
-      // sanitize plain text for appearance when re-rendered (we use textContent on index)
+    <script>
+      // Initialize Firebase - UPDATE THESE WITH YOUR FIREBASE CONFIG
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const database = firebase.database(app);
+      const reviewsRef = database.ref('reviews');
+
+      // Helper functions
       function trimOrEmpty(s) { return (s || '').trim(); }
 
+      function showMessage(message, isSuccess = true) {
+        const resultDiv = document.getElementById('result');
+        const className = isSuccess ? 'success' : 'error';
+        resultDiv.innerHTML = `<div class="${className}">${message}</div>`;
+      }
+
+      // Handle form submission
       document.getElementById('reviewForm').addEventListener('submit', function (ev) {
         ev.preventDefault();
+        
         const name = trimOrEmpty(document.getElementById('r-name').value);
         const rating = trimOrEmpty(document.getElementById('r-rating').value);
         const message = trimOrEmpty(document.getElementById('r-message').value);
 
         if (!name || !message) {
-          document.getElementById('result').innerHTML = '<div class="success">Please provide your name and a message.</div>';
+          showMessage('Please provide your name and a message.', false);
           return;
         }
+
+        // Show loading state
+        showMessage('<span class="loading">Submitting your review...</span>', true);
 
         const review = {
           name: name,
@@ -115,19 +126,16 @@
           ts: new Date().toISOString()
         };
 
-        const reviews = readReviews();
-        reviews.unshift(review); // newest first
-        writeReviews(reviews);
-
-        // show success and offer link back
-        const result = document.getElementById('result');
-        result.innerHTML = '<div class="success">Thank you — your review has been saved locally. <a href="index.html">Return to home to see it</a>.</div>';
-
-        // optional: clear form
-        this.reset();
-
-        // optional: redirect after short pause
-        // setTimeout(() => location.href = 'index.html', 1200);
+        // Push to Firebase
+        reviewsRef.push(review)
+          .then(() => {
+            showMessage('Thank you — your review has been saved and is now live! <a href="index.html">Return to home to see it</a>.');
+            document.getElementById('reviewForm').reset();
+          })
+          .catch((error) => {
+            console.error('Error saving review:', error);
+            showMessage('Error saving review. Please try again.', false);
+          });
       });
     </script>
   </body>
